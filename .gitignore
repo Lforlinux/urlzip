@@ -33,3 +33,6 @@ npm-debug.log*
 # Coverage
 coverage
 .nyc_output
+
+# Test reports (generated in CI)
+junit.xml

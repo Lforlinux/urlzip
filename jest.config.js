@@ -4,5 +4,30 @@ module.exports = {
   testMatch: ['**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest'
-  }
+  },
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  collectCoverageFrom: [
+    'lib/**/*.ts',
+    'bin/**/*.ts',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/cdk.out/**'
+  ],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputName: 'junit.xml',
+        outputDirectory: '.',
+        suiteName: 'Jest Tests',
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+        ancestorSeparator: ' › ',
+        usePathForSuiteName: 'true'
+      }
+    ]
+  ]
 };
