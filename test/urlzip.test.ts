@@ -1,17 +1,23 @@
-// import * as cdk from 'aws-cdk-lib/core';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as Urlzip from '../lib/urlzip-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { UrlzipStack } from '../lib/urlzip-stack';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/urlzip-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new Urlzip.UrlzipStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+test('Stack Created', () => {
+  const app = new cdk.App();
+  // WHEN
+  const stack = new UrlzipStack(app, 'TestStack', {
+    env: { account: '123456789012', region: 'us-east-1' },
+  });
+  // THEN
+  const template = Template.fromStack(stack);
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+  // Verify DynamoDB table exists
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
+    TableName: 'urlzip-urls',
+  });
+
+  // Verify API Gateway exists
+  template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+    Name: 'URL Shortener Service',
+  });
 });
