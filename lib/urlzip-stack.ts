@@ -3,6 +3,8 @@ import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class UrlzipStack extends cdk.Stack {
@@ -87,15 +89,36 @@ export class UrlzipStack extends cdk.Stack {
     });
 
     // Get base URL from API Gateway and update Lambda environment variables
+    // Note: We use API Gateway URL here to avoid circular dependency with CloudFront
     const apiBaseUrl = cdk.Fn.join('', [
       'https://',
       api.restApiId,
       '.execute-api.',
       this.region,
       '.amazonaws.com',
+      '/prod',
     ]);
     shortenFunction.addEnvironment('BASE_URL', apiBaseUrl);
     qrCodeFunction.addEnvironment('BASE_URL', apiBaseUrl);
+
+    // CloudFront Distribution for better performance and single URL
+    // CloudFront proxies to API Gateway, so Lambda functions can still use API Gateway URL
+    const distribution = new cloudfront.Distribution(this, 'UrlzipDistribution', {
+      defaultBehavior: {
+        origin: new origins.RestApiOrigin(api),
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED, // Disable caching for dynamic content
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      comment: 'CloudFront distribution for URL Shortener Service',
+    });
+
+    // CloudFront URL for outputs (users should use this URL to access the service)
+    const cloudFrontUrl = cdk.Fn.join('', [
+      'https://',
+      distribution.distributionDomainName,
+    ]);
 
     // API Gateway Integrations
     const shortenIntegration = new apigateway.LambdaIntegration(shortenFunction, {
@@ -121,9 +144,14 @@ export class UrlzipStack extends cdk.Stack {
     // OPTIONS method is automatically added by defaultCorsPreflightOptions
 
     // Outputs
+    new cdk.CfnOutput(this, 'CloudFrontUrl', {
+      value: cloudFrontUrl,
+      description: 'CloudFront Distribution URL - Use this to access your URL shortener',
+    });
+
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: api.url,
-      description: 'API Gateway URL',
+      description: 'API Gateway URL (direct access)',
     });
 
     new cdk.CfnOutput(this, 'TableName', {
