@@ -109,17 +109,7 @@ export class UrlzipStack extends cdk.Stack {
     // POST /shorten - Create shortened URL
     const shortenResource = api.root.addResource('shorten');
     shortenResource.addMethod('POST', shortenIntegration);
-    shortenResource.addMethod('OPTIONS', new apigateway.MockIntegration({
-      integrationResponses: [{
-        statusCode: '200',
-        responseParameters: {
-          'method.response.header.Access-Control-Allow-Origin': "'*'",
-        },
-      }],
-      requestTemplates: { 'application/json': '{"statusCode": 200}' },
-    }), {
-      methodResponses: [{ statusCode: '200' }],
-    });
+    // OPTIONS method is automatically added by defaultCorsPreflightOptions
 
     // GET /{shortCode} - Redirect to original URL
     const shortCodeResource = api.root.addResource('{shortCode}');
@@ -128,17 +118,7 @@ export class UrlzipStack extends cdk.Stack {
     // GET /{shortCode}/qr - Generate QR code
     const qrResource = shortCodeResource.addResource('qr');
     qrResource.addMethod('GET', qrCodeIntegration);
-    qrResource.addMethod('OPTIONS', new apigateway.MockIntegration({
-      integrationResponses: [{
-        statusCode: '200',
-        responseParameters: {
-          'method.response.header.Access-Control-Allow-Origin': "'*'",
-        },
-      }],
-      requestTemplates: { 'application/json': '{"statusCode": 200}' },
-    }), {
-      methodResponses: [{ statusCode: '200' }],
-    });
+    // OPTIONS method is automatically added by defaultCorsPreflightOptions
 
     // Outputs
     new cdk.CfnOutput(this, 'ApiUrl', {
