@@ -29,6 +29,7 @@ export class UrlzipStack extends cdk.Stack {
       environment: {
         TABLE_NAME: urlTable.tableName,
       },
+      depsLockFilePath: 'lambda/shorten/package-lock.json',
       bundling: {
         nodeModules: ['uuid'],
         minify: true,
@@ -58,6 +59,7 @@ export class UrlzipStack extends cdk.Stack {
       environment: {
         TABLE_NAME: urlTable.tableName,
       },
+      depsLockFilePath: 'lambda/qrcode/package-lock.json',
       bundling: {
         nodeModules: ['qrcode'],
         minify: true,
