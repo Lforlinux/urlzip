@@ -1,6 +1,6 @@
 {
   "name": "urlzip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "bin": {
     "urlzip": "bin/urlzip.js"
   },
