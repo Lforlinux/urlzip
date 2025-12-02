@@ -1,0 +1,14 @@
+{
+  "name": "qrcode",
+  "version": "1.0.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.490.0",
+    "@aws-sdk/lib-dynamodb": "^3.490.0",
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5",
+    "@types/aws-lambda": "^8.10.130"
+  }
+}
+
