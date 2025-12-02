@@ -26,7 +26,9 @@ module.exports = {
         classNameTemplate: '{classname}',
         titleTemplate: '{title}',
         ancestorSeparator: ' › ',
-        usePathForSuiteName: 'true'
+        usePathForSuiteName: 'true',
+        includeConsoleOutput: 'true',
+        addFileAttribute: 'true'
       }
     ]
   ]
