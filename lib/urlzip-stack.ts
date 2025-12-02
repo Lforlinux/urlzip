@@ -11,6 +11,10 @@ export class UrlzipStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // Get semantic version from package.json (via environment variable in CI/CD)
+    // @ts-ignore - process.env is available at runtime
+    const version = process.env.VERSION || '0.1.0';
+
     // DynamoDB Table for storing shortened URLs
     const urlTable = new dynamodb.Table(this, 'UrlTable', {
       tableName: 'urlzip-urls',
@@ -30,6 +34,7 @@ export class UrlzipStack extends cdk.Stack {
       handler: 'handler',
       environment: {
         TABLE_NAME: urlTable.tableName,
+        APP_VERSION: version,
       },
       depsLockFilePath: 'lambda/shorten/package-lock.json',
       bundling: {
@@ -46,6 +51,7 @@ export class UrlzipStack extends cdk.Stack {
       handler: 'handler',
       environment: {
         TABLE_NAME: urlTable.tableName,
+        APP_VERSION: version,
       },
       bundling: {
         minify: true,
@@ -60,6 +66,7 @@ export class UrlzipStack extends cdk.Stack {
       handler: 'handler',
       environment: {
         TABLE_NAME: urlTable.tableName,
+        APP_VERSION: version,
       },
       depsLockFilePath: 'lambda/qrcode/package-lock.json',
       bundling: {
@@ -157,6 +164,11 @@ export class UrlzipStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'TableName', {
       value: urlTable.tableName,
       description: 'DynamoDB Table Name',
+    });
+
+    new cdk.CfnOutput(this, 'Version', {
+      value: version,
+      description: 'Application version (semantic versioning)',
     });
   }
 }

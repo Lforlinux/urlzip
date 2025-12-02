@@ -97,9 +97,20 @@ jobs:
       - name: Bootstrap CDK (if needed)
         run: cdk bootstrap aws://168379940880/${{ env.AWS_REGION }} || true
 
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Deploying version: $VERSION"
+
       - name: CDK Synth
         run: cdk synth
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
 
       - name: CDK Deploy
         run: cdk deploy --require-approval never
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
 
